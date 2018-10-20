@@ -62,10 +62,6 @@ func (c *TCPConn) Connection() error {
 }
 
 func (c *TCPConn) handleConn() {
-	if c.readDeadline > 0 {
-		c.conn.SetReadDeadline(time.Now().Add(c.readDeadline))
-	}
-
 	_, err := c.protocol.ReadPacket(c.conn, c.readChan)
 	if err != nil {
 		fmt.Println("l: ", err)
@@ -83,6 +79,10 @@ func (c *TCPConn) readLoop() {
 		if p == nil {
 			continue
 		}
+		if c.readDeadline > 0 {
+			c.conn.SetReadDeadline(time.Now().Add(c.readDeadline))
+		}
+
 		c.callback.OnMessage(c, p)
 	}
 }
